@@ -5,8 +5,7 @@ local characters = {lua={"--", "-- [[", "]] --"},
 
 local infos = {file_extension="",
                exist=false,
-               current_line=0,
-               starting_text=""}
+               current_line=0}
 
 
 local function get_infos()
@@ -15,35 +14,32 @@ local function get_infos()
     local mode = 1
 
     infos.file_extension = string.match(api.nvim_buf_get_name(0), "^.+%.(.+)$")
-    
+
     if characters[infos.file_extension] then
         infos.exist = true
-
-        local length = #characters[infos.file_extension][mode]
         infos.current_line = api.nvim_win_get_cursor(0)[1] - 1
-
-        infos.starting_text = api.nvim_buf_get_text(0, infos.current_line, 0, infos.current_line, length, {})
-
     else
         print(infos.file_extension .. " n'existe pas :(")
     end
 end
 
-function invert()
+function invert(nb)
 
     get_infos()
-
     if infos.exist == true then
 
-        local text = api.nvim_get_current_line()
+        local lines = api.nvim_buf_get_lines(0, infos.current_line, infos.current_line + nb, {})
 
-        if not _remove(text) then
-            _add(text)
+        for index, text in pairs(lines) do
+
+            if not _remove(text, infos.current_line + index - 1) then
+                _add(text, infos.current_line + index - 1)
+            end
         end
     end
 end
 
-function _remove(text)
+function _remove(text, index_line)
 
     if #text > 0 then
 
@@ -54,14 +50,14 @@ function _remove(text)
                 stop = stop + 1
             end
 
-            vim.api.nvim_buf_set_text(0, infos.current_line, start-1, infos.current_line, stop, {})
+            vim.api.nvim_buf_set_text(0, index_line, start-1, index_line, stop, {})
 
             return true
         end
     end
 end
 
-function _add(text)
+function _add(text, index_line)
 
     if #text > 0 then
 
@@ -72,9 +68,9 @@ function _add(text)
         end
 
         vim.api.nvim_buf_set_text(0,
-                                  infos.current_line,
+                                  index_line,
                                   first-1,
-                                  infos.current_line,
+                                  index_line,
                                   first-1,
                                   {characters[infos.file_extension][1] .. " "})
     end
@@ -85,6 +81,8 @@ end
 -- TODO : Command to change pattern (simple -> complex)
 -- TODO : add with O or A
 
+--vim.api.nvim_set_keymap('n', '<leader>aa', ':lua add() <cr>', {})
+--vim.api.nvim_set_keymap('n', '<leader>ar', ':lua invert() <cr>', {})
 
-vim.api.nvim_set_keymap('n', '<leader>aa', ':lua add() <cr>', {})
-vim.api.nvim_set_keymap('n', '<leader>ar', ':lua invert() <cr>', {})
+vim.api.nvim_set_keymap('n', '<leader>ua', ':<C-U>echo"the cOunt is" .. v:count1<cr>', {})
+vim.api.nvim_set_keymap('n', '<leader>aa', ':<C-u>lua invert(vim.v.count1)<cr>', {})
