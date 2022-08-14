@@ -59,7 +59,8 @@ end
 
 function _add(text, index_line)
 
-    if #text > 0 then
+    -- Avoid empty and only space lines
+    if #text > 0 and string.match(text, "%g") ~= nil then
 
         -- Find the first character (! lua is base 1 and vim base 0)
         local _, first = string.find(text, "^%s+%g")
@@ -76,7 +77,6 @@ function _add(text, index_line)
     end
 end
 
-
 -- TODO : Table with simple and with complex comment
 -- TODO : Command to change pattern (simple -> complex)
 -- TODO : add with O or A
@@ -86,3 +86,33 @@ end
 
 vim.api.nvim_set_keymap('n', '<leader>ua', ':<C-U>echo"the cOunt is" .. v:count1<cr>', {})
 vim.api.nvim_set_keymap('n', '<leader>aa', ':<C-u>lua invert(vim.v.count1)<cr>', {})
+
+
+-- 
+function test(type)
+
+    local start = api.nvim_buf_get_mark(0, '[')
+    local finish = api.nvim_buf_get_mark(0, ']')
+
+    if type == 'line' then
+        P(start)
+        P(finish)
+
+    elseif type == 'char' then
+
+    elseif type == 'block' then
+        print("ok mon block")
+    end
+
+
+end
+
+-- api.nvim_set_keymap("n", "<leader>az", "<cmd>set opfunc=v:lua.print<CR>g@", {})
+-- g@aw  : char
+-- g@as  : line
+-- g@^VG : block
+
+api.nvim_set_keymap("n", "<leader>az", "<cmd>set opfunc=v:lua.test<CR>g@", {})
+
+
+
