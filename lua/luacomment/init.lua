@@ -17,47 +17,120 @@ local function get_infos()
 
     if characters[infos.file_extension] then
         infos.exist = true
-        infos.current_line = api.nvim_win_get_cursor(0)[1] - 1
+        -- infos.current_line = api.nvim_win_get_cursor(0)[1] - 1
     else
         print(infos.file_extension .. " n'existe pas :(")
     end
 end
 
-function invert(nb)
+-- [[ For motions after command, only line movement ]]
+function add_or_remove(type)
+
+    if type == 'line' then
+        local start = api.nvim_buf_get_mark(0, '[')
+        local finish = api.nvim_buf_get_mark(0, ']')
+
+        _add_or_remove(start[1] - 1, finish[1])
+    end
+end
+
+-- [[ For motions before command ]]
+function add_or_remove_from_current(nb)
+
+        local current_row = api.nvim_win_get_cursor(0)[1] - 1
+        _add_or_remove(current_row, current_row + nb)
+end
+
+-- [[ Comment or uncomment all lines between from and to ]]
+function _add_or_remove(from, to)
 
     get_infos()
     if infos.exist == true then
 
-        local lines = api.nvim_buf_get_lines(0, infos.current_line, infos.current_line + nb, {})
+        -- Get all lines
+        local lines = api.nvim_buf_get_lines(0, from, to, false)
 
-        for index, text in pairs(lines) do
+        -- Are they all already commented ?
+        local comment_them_all = false
+        for _, text in pairs(lines) do
 
-            if not _remove(text, infos.current_line + index - 1) then
-                _add(text, infos.current_line + index - 1)
+            if is_commented(text, characters[infos.file_extension][1]) == false then
+                comment_them_all = true
+                break
+            end
+        end
+
+        -- Uncomment only if all lines are comment
+        if comment_them_all then
+            for index, text in ipairs(lines) do
+                _add_on_line(text, from + index - 1, characters[infos.file_extension][1])
+            end
+        else
+            for index, text in ipairs(lines) do
+                _remove_on_line(text, from + index - 1, characters[infos.file_extension][1])
             end
         end
     end
 end
 
-function _remove(text, index_line)
+-- [[ Check if the given text begins with comment characters ]]
+function is_commented(text, characters)
+
+    if #text == 0 or string.match(text, "%g") == nil then
+        return nil
+    elseif string.find(text, "^%s*[" .. characters .. "]") ~= nil then
+        return true
+    else
+        return false
+    end
+end
+
+function invert_from_current(nb)
+
+    get_infos()
+    if infos.exist == true then
+        local current_line = api.nvim_win_get_cursor(0)[1] - 1
+
+        _invert_on_lines(current_line, current_line + nb, characters[infos.file_extension][1])
+    end
+end
+
+function _invert_on_lines(start, stop, characters)
+
+    local lines = api.nvim_buf_get_lines(0, start, stop, {})
+
+    for index, text in pairs(lines) do
+
+        if not _remove_on_line(text, start + index, characters) then
+            _add_on_line(text, start + index, characters)
+        end
+    end
+
+end
+
+
+
+-- [[ Remove the first characters on the given row ]]
+function _remove_on_line(text, index_row, characters)
 
     if #text > 0 then
 
-        local start, stop = string.find(text, characters[infos.file_extension][1], 0, true)
+        local column_start, column_stop = string.find(text, characters, 0, true)
 
-        if start then
-            if text:sub(stop+1, stop+1) == " " then
-                stop = stop + 1
+        if column_start then
+            if text:sub(column_stop+1, column_stop+1) == " " then
+                column_stop = column_stop + 1
             end
 
-            vim.api.nvim_buf_set_text(0, index_line, start-1, index_line, stop, {})
+            vim.api.nvim_buf_set_text(0, index_row, column_start-1, index_row, column_stop, {})
 
             return true
         end
     end
 end
 
-function _add(text, index_line)
+-- [[ Add characters on the given row ]]
+function _add_on_line(text, index_row, characters)
 
     -- Avoid empty and only space lines
     if #text > 0 and string.match(text, "%g") ~= nil then
@@ -69,11 +142,11 @@ function _add(text, index_line)
         end
 
         vim.api.nvim_buf_set_text(0,
-                                  index_line,
+                                  index_row,
                                   first-1,
-                                  index_line,
+                                  index_row,
                                   first-1,
-                                  {characters[infos.file_extension][1] .. " "})
+                                  {characters .. " "})
     end
 end
 
@@ -81,12 +154,16 @@ end
 -- TODO : Command to change pattern (simple -> complex)
 -- TODO : add with O or A
 
---vim.api.nvim_set_keymap('n', '<leader>aa', ':lua add() <cr>', {})
---vim.api.nvim_set_keymap('n', '<leader>ar', ':lua invert() <cr>', {})
+-- local map_opt = { noremap = true, silent = true }
+-- local map_opt = { noremap = true}
+local map_opt = {}
 
-vim.api.nvim_set_keymap('n', '<leader>ua', ':<C-U>echo"the cOunt is" .. v:count1<cr>', {})
-vim.api.nvim_set_keymap('n', '<leader>aa', ':<C-u>lua invert(vim.v.count1)<cr>', {})
+-- api.nvim_set_keymap('n', '<leader>ua', ':<C-U>echo"the cOunt is" .. v:count1<cr>', map_opt)
+api.nvim_set_keymap('n', '<leader>cc', ':<C-u>lua add_or_remove_from_current(vim.v.count1)<cr>', map_opt)
+api.nvim_set_keymap('n', '<leader>ci', ':<C-u>lua invert(vim.v.count1)<cr>', map_opt)
 
+
+api.nvim_set_keymap("n", "<leader>c", "<cmd>set opfunc=v:lua.add_or_remove<CR>g@", map_opt)
 
 -- 
 function test(type)
@@ -95,24 +172,12 @@ function test(type)
     local finish = api.nvim_buf_get_mark(0, ']')
 
     if type == 'line' then
-        P(start)
-        P(finish)
+        print("start : " .. start[1] .. "  -  " .. finish[1])
+
 
     elseif type == 'char' then
 
     elseif type == 'block' then
         print("ok mon block")
     end
-
-
 end
-
--- api.nvim_set_keymap("n", "<leader>az", "<cmd>set opfunc=v:lua.print<CR>g@", {})
--- g@aw  : char
--- g@as  : line
--- g@^VG : block
-
-api.nvim_set_keymap("n", "<leader>az", "<cmd>set opfunc=v:lua.test<CR>g@", {})
-
-
-
