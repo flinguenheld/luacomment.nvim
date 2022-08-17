@@ -5,29 +5,22 @@ L = {}
 
 --------------------------------------------------------------------------------------------------
 
--- [[ For motions after command, only line movement ]]
+-- [[ For motions after command, force by line comment ]]
 function L.add_or_remove(type)
-    local start = A.nvim_buf_get_mark(0, '[')
-    local finish = A.nvim_buf_get_mark(0, ']')
 
-    if type == 'line' then
-        _add_or_remove(start[1] - 1, finish[1])
-    elseif type == 'block' then
-        print('pouet : block')
-    elseif type == 'word' then
-        print('HelllooooOoO WORD ! ')
-    elseif type == 'char' then
-        _add_or_remove(start[1] - 1, finish[1])
+    if type == 'line' or type == 'char' then
+        local start = A.nvim_buf_get_mark(0, '[')
+        local finish = A.nvim_buf_get_mark(0, ']')
 
+        L._add_or_remove(start[1] - 1, finish[1])
     end
 end
-
 
 -- [[ For motions before command ]]
 function L.add_or_remove_from_current(nb)
 
         local current_row = A.nvim_win_get_cursor(0)[1] - 1
-        _add_or_remove(current_row, current_row + nb)
+        L._add_or_remove(current_row, current_row + nb)
 end
 
 --------------------------------------------------------------------------------------------------
@@ -76,7 +69,7 @@ end
 --------------------------------------------------------------------------------------------------
 
 -- [[ Comment or uncomment all lines between from and to ]]
-function _add_or_remove(from, to)
+function L._add_or_remove(from, to)
 
     G.get_infos()
     if G.infos.exist == true then

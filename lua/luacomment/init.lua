@@ -4,10 +4,16 @@ local A = vim.api
 local map = A.nvim_set_keymap
 
 
--- TODO : Table with simple and with complex comment
--- TODO : Command to change pattern (simple -> complex)
+-- TODO : characters list ? where read it ?
+-- TODO : file names ?
+-- TODO : Invert
 -- TODO : add with O or A
 -- TODO : Block ??
+
+
+
+
+
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
@@ -23,6 +29,7 @@ map('n', '<leader>ci', ':<C-u>lua L.invert(vim.v.count1)<cr>', map_opt)
 map('n', '<leader>c', '<cmd>set opfunc=v:lua.L.add_or_remove<CR>g@', map_opt) -- Can't use {'n', 'v'} ?
 map('v', '<leader>c', '<cmd>set opfunc=v:lua.L.add_or_remove<CR>g@', map_opt)
 
+map('n', '<leader>C', '<cmd>set opfunc=v:lua.C.add_or_remove<CR>g@', map_opt)
 map('v', '<leader>C', '<cmd>set opfunc=v:lua.C.add_or_remove<CR>g@', map_opt)
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
