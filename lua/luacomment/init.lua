@@ -1,5 +1,7 @@
 local L = require('luacomment.line')
+local C = require('luacomment.char')
 local A = vim.api
+local map = A.nvim_set_keymap
 
 
 -- TODO : Table with simple and with complex comment
@@ -15,11 +17,13 @@ local map_opt = {}
 
 -- A.nvim_set_keymap('n', '<leader>ua', ':<C-U>echo"the cOunt is" .. v:count1<cr>', map_opt)
 
-A.nvim_set_keymap('n', '<leader>cc', ':<C-u>lua L.add_or_remove_from_current(vim.v.count1)<cr>', map_opt)
-A.nvim_set_keymap('n', '<leader>ci', ':<C-u>lua L.invert(vim.v.count1)<cr>', map_opt)
+map('n', '<leader>cc', ':<C-u>lua L.add_or_remove_from_current(vim.v.count1)<cr>', map_opt)
+map('n', '<leader>ci', ':<C-u>lua L.invert(vim.v.count1)<cr>', map_opt)
 
-A.nvim_set_keymap("n", "<leader>c", "<cmd>set opfunc=v:lua.L.add_or_remove<CR>g@", map_opt)
+map('n', '<leader>c', '<cmd>set opfunc=v:lua.L.add_or_remove<CR>g@', map_opt) -- Can't use {'n', 'v'} ?
+map('v', '<leader>c', '<cmd>set opfunc=v:lua.L.add_or_remove<CR>g@', map_opt)
 
+map('v', '<leader>C', '<cmd>set opfunc=v:lua.C.add_or_remove<CR>g@', map_opt)
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
 function test(type)

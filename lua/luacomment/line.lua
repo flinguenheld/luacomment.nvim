@@ -7,14 +7,21 @@ L = {}
 
 -- [[ For motions after command, only line movement ]]
 function L.add_or_remove(type)
+    local start = A.nvim_buf_get_mark(0, '[')
+    local finish = A.nvim_buf_get_mark(0, ']')
 
     if type == 'line' then
-        local start = A.nvim_buf_get_mark(0, '[')
-        local finish = A.nvim_buf_get_mark(0, ']')
-
         _add_or_remove(start[1] - 1, finish[1])
+    elseif type == 'block' then
+        print('pouet : block')
+    elseif type == 'word' then
+        print('HelllooooOoO WORD ! ')
+    elseif type == 'char' then
+        _add_or_remove(start[1] - 1, finish[1])
+
     end
 end
+
 
 -- [[ For motions before command ]]
 function L.add_or_remove_from_current(nb)
@@ -112,7 +119,7 @@ function _remove_on_line(text, index_row, characters)
                 column_stop = column_stop + 1
             end
 
-            vim.api.nvim_buf_set_text(0, index_row, column_start-1, index_row, column_stop, {})
+            A.nvim_buf_set_text(0, index_row, column_start-1, index_row, column_stop, {})
 
             return true
         end
@@ -131,12 +138,12 @@ function _add_on_line(text, index_row, characters)
             first = 1
         end
 
-        vim.api.nvim_buf_set_text(0,
-                                  index_row,
-                                  first-1,
-                                  index_row,
-                                  first-1,
-                                  {characters .. " "})
+        A.nvim_buf_set_text(0,
+                            index_row,
+                            first-1,
+                            index_row,
+                            first-1,
+                            {characters .. " "})
     end
 end
 
