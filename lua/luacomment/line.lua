@@ -4,29 +4,41 @@ local A = vim.api
 L = {}
 
 --------------------------------------------------------------------------------------------------
+-- Action in a range (between marks)
+--      type : directly given by opfunc
+--------------------------------------------------------------------------------------------------
+function L.add_from_selection(type)
+    _go_from_selection(type, 'add')
+end
 
--- [[ For motions after command, force by line comment ]]
-function L.add_or_remove(type)
+function L.delete_from_selection(type)
+    _go_from_selection(type, 'delete')
+end
+
+function _go_from_selection(type, action)
 
     if type == 'line' or type == 'char' then
         local start = A.nvim_buf_get_mark(0, '[')
         local finish = A.nvim_buf_get_mark(0, ']')
 
-        L._add_or_remove(start[1] - 1, finish[1])
+        L._apply_action(start[1] - 1, finish[1], action)
     end
 end
 
--- [[ For motions before command ]]
-function L.add_or_remove_from_current(nb)
-
+--------------------------------------------------------------------------------------------------
+-- Actions from the current line
+--      nb : number of lines
+--      action : add or delete
+--------------------------------------------------------------------------------------------------
+function L.from_current(nb, action)
         local current_row = A.nvim_win_get_cursor(0)[1] - 1
-        L._add_or_remove(current_row, current_row + nb)
+        L._apply_action(current_row, current_row + nb, action)
 end
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
 
-
+-- KEEP ?
 -- [[ Check if the given text begins with comment characters ]]
 local function _is_commented(text, characters)
 
@@ -42,34 +54,11 @@ end
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
 
-function invert_from_current(nb)
-
-    G.get_infos()
-    if G.infos.exist == true then
-        local current_line = A.nvim_win_get_cursor(0)[1] - 1
-
-        _invert_on_lines(current_line, current_line + nb, G.characters[G.infos.file_extension][1])
-    end
-end
-
-function _invert_on_lines(start, stop, characters)
-
-    local lines = A.nvim_buf_get_lines(0, start, stop, {})
-
-    for index, text in pairs(lines) do
-
-        if not _remove_on_line(text, start + index, characters) then
-            _add_on_line(text, start + index, characters)
-        end
-    end
-
-end
-
 --------------------------------------------------------------------------------------------------
+-- Get lines and loop
+--      action : add or delete
 --------------------------------------------------------------------------------------------------
-
--- [[ Comment or uncomment all lines between from and to ]]
-function L._add_or_remove(from, to)
+function L._apply_action(from, to, action)
 
     G.get_infos()
     if G.infos.exist == true then
@@ -77,31 +66,25 @@ function L._add_or_remove(from, to)
         -- Get all lines
         local lines = A.nvim_buf_get_lines(0, from, to, false)
 
-        -- Are they all already commented ?
-        local comment_them_all = false
-        for _, text in pairs(lines) do
-
-            if _is_commented(text, G.characters[G.infos.file_extension][1]) == false then
-                comment_them_all = true
-                break
-            end
-        end
-
-        -- Uncomment only if all lines are comment
-        if comment_them_all then
             for index, text in ipairs(lines) do
-                _add_on_line(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                if action == 'add' then
+                    _add(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                elseif action == 'delete' then
+                    _delete(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                end
             end
-        else
-            for index, text in ipairs(lines) do
-                _remove_on_line(text, from + index - 1, G.characters[G.infos.file_extension][1])
-            end
-        end
     end
 end
 
--- [[ Remove the first characters on the given row ]]
-function _remove_on_line(text, index_row, characters)
+--------------------------------------------------------------------------------------------------
+-- ADD INVERT
+--------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------
+-- delete the first comment characters on the line
+--------------------------------------------------------------------------------------------------
+function _delete(text, index_row, characters)
 
     if #text > 0 then
 
@@ -119,8 +102,12 @@ function _remove_on_line(text, index_row, characters)
     end
 end
 
--- [[ Add characters on the given row ]]
-function _add_on_line(text, index_row, characters)
+--------------------------------------------------------------------------------------------------
+-- Add comment characters on the line
+-- Avoid empty lines
+-- No check, just add
+--------------------------------------------------------------------------------------------------
+function _add(text, index_row, characters)
 
     -- Avoid empty and only space lines
     if #text > 0 and string.match(text, "%g") ~= nil then
