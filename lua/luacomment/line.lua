@@ -15,6 +15,10 @@ function L.delete_from_selection(type)
     _go_from_selection(type, 'delete')
 end
 
+function L.invert_from_selection(type)
+    _go_from_selection(type, 'invert')
+end
+
 function _go_from_selection(type, action)
 
     if type == 'line' or type == 'char' then
@@ -26,7 +30,7 @@ function _go_from_selection(type, action)
 end
 
 --------------------------------------------------------------------------------------------------
--- Actions from the current line
+-- Action from the current line
 --      nb : number of lines
 --      action : add or delete
 --------------------------------------------------------------------------------------------------
@@ -34,25 +38,6 @@ function L.from_current(nb, action)
         local current_row = A.nvim_win_get_cursor(0)[1] - 1
         L._apply_action(current_row, current_row + nb, action)
 end
-
---------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------
-
--- KEEP ?
--- [[ Check if the given text begins with comment characters ]]
-local function _is_commented(text, characters)
-
-    if #text == 0 or string.match(text, "%g") == nil then
-        return nil
-    elseif string.find(text, "^%s*[" .. characters .. "]") ~= nil then
-        return true
-    else
-        return false
-    end
-end
-
---------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------
 -- Get lines and loop
@@ -71,15 +56,34 @@ function L._apply_action(from, to, action)
                     _add(text, from + index - 1, G.characters[G.infos.file_extension][1])
                 elseif action == 'delete' then
                     _delete(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                elseif action == 'invert' then
+                    _invert(text, from + index - 1, G.characters[G.infos.file_extension][1])
                 end
             end
     end
 end
 
 --------------------------------------------------------------------------------------------------
--- ADD INVERT
+-- Invert the comment
 --------------------------------------------------------------------------------------------------
+function _invert(text, index_row, characters)
 
+    if _is_commented(text, characters) then
+        _delete(text, index_row, characters)
+    else
+        _add(text, index_row, characters)
+    end
+end
+
+-- Check if the given text begins with characters
+function _is_commented(text, characters)
+
+    if string.find(text, "^%s*" .. G.pattern_to_plain(characters) .. "") ~= nil then
+        return true
+    else
+        return false
+    end
+end
 
 --------------------------------------------------------------------------------------------------
 -- delete the first comment characters on the line
