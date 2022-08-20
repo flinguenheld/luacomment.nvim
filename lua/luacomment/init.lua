@@ -34,28 +34,10 @@ map('v', '<leader>cd', '<cmd>set opfunc=v:lua.L.delete_from_selection<CR>g@', ma
 map('v', '<leader>ci', '<cmd>set opfunc=v:lua.L.invert_from_selection<CR>g@', map_opt)
 
 
+-- Multiline
 map('n', '<leader>Ca', ':<C-u>lua ML.from_current(vim.v.count1, "add")<cr>', map_opt)
 map('n', '<leader>Cd', ':<C-u>lua ML.from_current(vim.v.count1, "delete")<cr>', map_opt)
 
-map('n', '<leader>cC', ':<C-u>lua ML.by_line(vim.v.count1)<cr>', map_opt)
+map('n', '<leader>CA', '<cmd>set opfunc=v:lua.ML.add_from_selection<CR>g@', map_opt)
 
-map('n', '<leader>C', '<cmd>set opfunc=v:lua.ML.add_or_remove<CR>g@', map_opt)
-map('v', '<leader>C', '<cmd>set opfunc=v:lua.ML.add_or_remove<CR>g@', map_opt)
-
---------------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------
-function test(type)
-
-    local start = A.nvim_buf_get_mark(0, '[')
-    local finish = A.nvim_buf_get_mark(0, ']')
-
-    if type == 'line' then
-        print("start : " .. start[1] .. "  -  " .. finish[1])
-
-
-    elseif type == 'char' then
-
-    elseif type == 'block' then
-        print("ok mon block")
-    end
-end
+map('v', '<leader>Ca', '<cmd>set opfunc=v:lua.ML.add_from_selection<CR>g@', map_opt)

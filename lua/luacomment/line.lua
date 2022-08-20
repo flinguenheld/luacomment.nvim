@@ -8,18 +8,18 @@ L = {}
 --      type : directly given by opfunc
 --------------------------------------------------------------------------------------------------
 function L.add_from_selection(type)
-    _go_from_selection(type, 'add')
+    L._go_from_selection(type, 'add')
 end
 
 function L.delete_from_selection(type)
-    _go_from_selection(type, 'delete')
+    L._go_from_selection(type, 'delete')
 end
 
 function L.invert_from_selection(type)
-    _go_from_selection(type, 'invert')
+    L._go_from_selection(type, 'invert')
 end
 
-function _go_from_selection(type, action)
+function L._go_from_selection(type, action)
 
     if type == 'line' or type == 'char' then
         local start = A.nvim_buf_get_mark(0, '[')
@@ -32,7 +32,7 @@ end
 --------------------------------------------------------------------------------------------------
 -- Action from the current line
 --      nb : number of lines
---      action : add or delete
+--      action : add, delete or invert
 --------------------------------------------------------------------------------------------------
 function L.from_current(nb, action)
         local current_row = A.nvim_win_get_cursor(0)[1] - 1
@@ -41,7 +41,7 @@ end
 
 --------------------------------------------------------------------------------------------------
 -- Get lines and loop
---      action : add or delete
+--      action : add, delete or invert
 --------------------------------------------------------------------------------------------------
 function L._apply_action(from, to, action)
 
@@ -86,7 +86,7 @@ function L._is_commented(text, characters)
 end
 
 --------------------------------------------------------------------------------------------------
--- delete the first comment characters on the line
+-- Delete the first comment characters on the line
 --------------------------------------------------------------------------------------------------
 function L._delete(text, index_row, characters)
 
