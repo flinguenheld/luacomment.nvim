@@ -61,23 +61,56 @@ end
 
 function ML._delete(from, characters_open, characters_close)
 
-    -- Are there open characters ?
-    line = A.nvim_buf_get_lines(0, from, from + 1, {})[1]
 
-    local s, e = string.find(line, characters_open, 0, true)
-    if s ~= nil then
+    -- First open characters
+    lines = A.nvim_buf_get_lines(0, 0, from + 1, {})
 
-        -- Space ?
-        if line:sub(e+1, e+1) == " " then
-            A.nvim_buf_set_text(0, from, s - 1, from, e + 1, {})
-        else
-            A.nvim_buf_set_text(0, from, s - 1, from, e, {})
+    for i = #lines, 1, -1 do
+
+        local s, e = string.find(lines[i], characters_open, 0, true)
+        if s ~= nil then
+
+            -- Space ?
+            if lines[i]:sub(e + 1, e + 1) == " " then
+                e = e + 1
+            end
+
+            if ML._delete_end(from, characters_close) then
+                A.nvim_buf_set_text(0, i - 1, s - 1, i - 1, e, {})
+                return
+            end
         end
     end
-    
-
-
+    print("Nothing to delete")
 end
+
+function ML._delete_end(from, characters_close)
+
+    lines = A.nvim_buf_get_lines(0, from, -1, {})
+
+    for index, line in ipairs(lines) do
+
+        local s, e = string.find(line, characters_close, 0, true)
+
+        if s ~= nil then
+
+             -- Space ?
+            print(line:sub(s - 1, s - 1))
+            if line:sub(s - 1, s - 1) == " " then
+                s = s - 1
+            end
+
+            A.nvim_buf_set_text(0, from + index - 1, s - 1, from + index - 1, e, {})
+            return true
+        end
+    end
+
+
+    
+end
+
+
+
 
 --------------------------------------------------------------------------------------------------
 
