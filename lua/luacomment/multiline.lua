@@ -3,6 +3,81 @@ local A = vim.api
 
 ML = {}
 
+--------------------------------------------------------------------------------------------------
+-- Action from the current line
+--      nb : number of lines
+--      action : add or delete
+--------------------------------------------------------------------------------------------------
+function ML.from_current(nb, action)
+        local current_row = A.nvim_win_get_cursor(0)[1] - 1
+        ML._apply_action(current_row, current_row + nb - 1, action)
+end
+
+--------------------------------------------------------------------------------------------------
+-- Get lines and loop
+--      action : add or delete
+--------------------------------------------------------------------------------------------------
+function ML._apply_action(from, to, action)
+
+    G.get_infos()
+    if G.infos.exist == true then
+
+        if action == 'add' then
+            ML._add(from, to, G.characters[G.infos.file_extension][2], G.characters[G.infos.file_extension][3])
+        elseif action == 'delete' then
+            ML._delete(from, G.characters[G.infos.file_extension][2], G.characters[G.infos.file_extension][3])
+
+        end
+
+    end
+end
+
+--------------------------------------------------------------------------------------------------
+-- Add Multiline comments by lines
+--------------------------------------------------------------------------------------------------
+function ML._add(from, to, characters_open, characters_close)
+
+    -- The index -1 doesn't work :(
+    -- end
+    local line = A.nvim_buf_get_lines(0, to, to + 1, {})[1]
+    local space = " "
+
+    if G.is_empty_or_space(line) then
+        space = ""
+    end
+
+    A.nvim_buf_set_text(0, to, #line, to, #line, {space .. characters_close})
+
+    -- start
+    line = A.nvim_buf_get_lines(0, from, from + 1, {})[1]
+    space = " "
+    if G.is_empty_or_space(line) then
+        space = ""
+    end
+
+    A.nvim_buf_set_text(0, from, 0, from, 0, {characters_open .. space})
+end
+
+
+function ML._delete(from, characters_open, characters_close)
+
+    -- Are there open characters ?
+    line = A.nvim_buf_get_lines(0, from, from + 1, {})[1]
+
+    local s, e = string.find(line, characters_open, 0, true)
+    if s ~= nil then
+
+        -- Space ?
+        if line:sub(e+1, e+1) == " " then
+            A.nvim_buf_set_text(0, from, s - 1, from, e + 1, {})
+        else
+            A.nvim_buf_set_text(0, from, s - 1, from, e, {})
+        end
+    end
+    
+
+
+end
 
 --------------------------------------------------------------------------------------------------
 
@@ -29,7 +104,7 @@ function ML.by_line(from, to)
         -- Are they all alredy commented ?
         -- First line with open
         for _, line in pairs(lines) do
-            if _is_commented(line) then
+            if L._is_commented(line) then
 
                 print("YEP")
 

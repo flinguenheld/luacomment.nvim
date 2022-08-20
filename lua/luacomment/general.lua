@@ -37,4 +37,9 @@ function G.pattern_to_plain(str)
     return str:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", function(c) return "%" .. c end)
 end
 --------------------------------------------------------------------------------------------------
+function G.is_empty_or_space(text)
+    return #text == 0 or string.match(text, "%g") == nil
+end
+
+
 return G

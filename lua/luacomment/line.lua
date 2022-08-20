@@ -53,11 +53,11 @@ function L._apply_action(from, to, action)
 
             for index, text in ipairs(lines) do
                 if action == 'add' then
-                    _add(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                    L._add(text, from + index - 1, G.characters[G.infos.file_extension][1])
                 elseif action == 'delete' then
-                    _delete(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                    L._delete(text, from + index - 1, G.characters[G.infos.file_extension][1])
                 elseif action == 'invert' then
-                    _invert(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                    L._invert(text, from + index - 1, G.characters[G.infos.file_extension][1])
                 end
             end
     end
@@ -66,17 +66,17 @@ end
 --------------------------------------------------------------------------------------------------
 -- Invert the comment
 --------------------------------------------------------------------------------------------------
-function _invert(text, index_row, characters)
+function L._invert(text, index_row, characters)
 
-    if _is_commented(text, characters) then
-        _delete(text, index_row, characters)
+    if L._is_commented(text, characters) then
+        L._delete(text, index_row, characters)
     else
-        _add(text, index_row, characters)
+        L._add(text, index_row, characters)
     end
 end
 
 -- Check if the given text begins with characters
-function _is_commented(text, characters)
+function L._is_commented(text, characters)
 
     if string.find(text, "^%s*" .. G.pattern_to_plain(characters) .. "") ~= nil then
         return true
@@ -88,7 +88,7 @@ end
 --------------------------------------------------------------------------------------------------
 -- delete the first comment characters on the line
 --------------------------------------------------------------------------------------------------
-function _delete(text, index_row, characters)
+function L._delete(text, index_row, characters)
 
     if #text > 0 then
 
@@ -111,7 +111,7 @@ end
 -- Avoid empty lines
 -- No check, just add
 --------------------------------------------------------------------------------------------------
-function _add(text, index_row, characters)
+function L._add(text, index_row, characters)
 
     -- Avoid empty and only space lines
     if #text > 0 and string.match(text, "%g") ~= nil then
