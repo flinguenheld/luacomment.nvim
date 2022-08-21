@@ -10,7 +10,9 @@ G.characters = {lua={"--", "-- [[", "]]"},
 
 G.infos = {file_extension="",
            exist=false,
-           current_line=0}
+           characters_line = "",
+           characters_open = "",
+           characters_close = ""}
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
@@ -23,10 +25,14 @@ function G.get_infos()
     G.infos.file_extension = string.match(A.nvim_buf_get_name(0), "^.+%.(.+)$")
 
     if G.characters[G.infos.file_extension] then
+
+        G.infos.characters_line = G.characters[G.infos.file_extension][1]
+        G.infos.characters_open = G.characters[G.infos.file_extension][2]
+        G.infos.characters_close = G.characters[G.infos.file_extension][3]
+
         G.infos.exist = true
-        -- infos.current_line = api.nvim_win_get_cursor(0)[1] - 1
     else
-        print(G.infos.file_extension .. " n'existe pas :(")
+        print(G.infos.file_extension .. " doesn't exist :(")
     end
 end
 
