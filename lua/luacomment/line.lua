@@ -25,25 +25,16 @@ function L._go_from_selection(type, action)
         local start = A.nvim_buf_get_mark(0, '[')
         local finish = A.nvim_buf_get_mark(0, ']')
 
-        L._apply_action(start[1] - 1, finish[1], action)
+        L.apply_action(start[1] - 1, finish[1], action)
     end
 end
 
---------------------------------------------------------------------------------------------------
--- Action from the current line
---      nb : number of lines
---      action : add, delete or invert
---------------------------------------------------------------------------------------------------
-function L.from_current(nb, action)
-        local current_row = A.nvim_win_get_cursor(0)[1] - 1
-        L._apply_action(current_row, current_row + nb, action)
-end
 
 --------------------------------------------------------------------------------------------------
 -- Get lines and loop
 --      action : add, delete or invert
 --------------------------------------------------------------------------------------------------
-function L._apply_action(from, to, action)
+L.apply_action = function (from, to, action)
 
     G.get_infos()
     if G.infos.exist == true then
@@ -53,11 +44,11 @@ function L._apply_action(from, to, action)
 
             for index, text in ipairs(lines) do
                 if action == 'add' then
-                    L._add(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                    L._add(text, from + index - 1, G.infos.characters_line)
                 elseif action == 'delete' then
-                    L._delete(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                    L._delete(text, from + index - 1, G.infos.characters_line)
                 elseif action == 'invert' then
-                    L._invert(text, from + index - 1, G.characters[G.infos.file_extension][1])
+                    L._invert(text, from + index - 1, G.infos.characters_line)
                 end
             end
     end
@@ -130,6 +121,7 @@ function L._add(text, index_row, characters)
                             {characters .. " "})
     end
 end
+
 
 --------------------------------------------------------------------------------------------------
 return L

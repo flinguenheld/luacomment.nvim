@@ -80,22 +80,19 @@ function W.clean_from_selection(type)
         local start = A.nvim_buf_get_mark(0, '[')
         local finish = A.nvim_buf_get_mark(0, ']')
 
-        W._clean_right(start[1] - 1, finish[1])
+        W.clean_right(start[1] - 1, finish[1])
     end
 end
 
-function W.clean_from_current(nb)
-    local current_row = A.nvim_win_get_cursor(0)[1] - 1
-    W._clean_right(current_row, current_row + nb)
-end
 
-function W._clean_right(from, to)
+W.clean_right = function(from, to)
 
     G.get_infos()
     if G.infos.exist == true then
 
         -- Get all lines
         local lines = A.nvim_buf_get_lines(0, from, to, false)
+        local done = false
 
         for index, line in ipairs(lines) do
 
@@ -108,7 +105,12 @@ function W._clean_right(from, to)
                 reverse_line = string.gsub(reverse_line, "^%s+", "")
 
                 A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {reverse_line:reverse()})
+                done = true
             end
+        end
+
+        if done ~= true then
+            print("Nothing to clean")
         end
     end
 

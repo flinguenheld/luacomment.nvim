@@ -14,39 +14,29 @@ function ML.add_from_selection(type)
     local finish = A.nvim_buf_get_mark(0, ']')
 
     if type == 'char' then
-        ML._apply_action(start, finish, 'add_char')
+        ML.apply_action(start, finish, 'add_char')
 
     -- Simplify the action by lines
     elseif type == 'line' then
-        ML._apply_action(start[1] - 1, finish[1] - 1, 'add')
+        ML.apply_action(start[1] - 1, finish[1] - 1, 'add')
     end
-end
-
---------------------------------------------------------------------------------------------------
--- Action from the current line
---      nb : number of lines
---      action : add or delete
---------------------------------------------------------------------------------------------------
-function ML.from_current(nb, action)
-        local current_row = A.nvim_win_get_cursor(0)[1] - 1
-        ML._apply_action(current_row, current_row + nb - 1, action)
 end
 
 --------------------------------------------------------------------------------------------------
 -- Get lines and loop
 --      action : add or delete
 --------------------------------------------------------------------------------------------------
-function ML._apply_action(from, to, action)
+ML.apply_action = function(from, to, action)
 
     G.get_infos()
     if G.infos.exist == true then
 
         if action == 'add' then
-            ML._add(from, to, G.characters[G.infos.file_extension][2], G.characters[G.infos.file_extension][3])
+            ML._add(from, to - 1, G.infos.characters_open, G.infos.characters_close)
         elseif action == 'add_char' then
-            ML.add_multiline_char(from, to, G.characters[G.infos.file_extension][2], G.characters[G.infos.file_extension][3])
+            ML._add_multiline_char(from, to, G.infos.characters_open, G.infos.characters_close)
         elseif action == 'delete' then
-            ML._delete(from, G.characters[G.infos.file_extension][2], G.characters[G.infos.file_extension][3])
+            ML._delete(from, G.infos.characters_open, G.infos.characters_close)
         end
     end
 end
@@ -86,7 +76,7 @@ end
 --------------------------------------------------------------------------------------------------
 function ML._delete(from, characters_open, characters_close)
 
-    lines = A.nvim_buf_get_lines(0, 0, from + 1, {})
+    local lines = A.nvim_buf_get_lines(0, 0, from + 1, {})
 
     for i = #lines, 1, -1 do
 
@@ -109,7 +99,7 @@ end
 
 function ML._delete_end(from, characters_close)
 
-    lines = A.nvim_buf_get_lines(0, from, -1, {})
+    local lines = A.nvim_buf_get_lines(0, from, -1, {})
 
     for index, line in ipairs(lines) do
 
@@ -133,7 +123,7 @@ end
 -- Add multiline comment in the given boundaries
 -- Specific to selection by char
 --------------------------------------------------------------------------------------------------
-function ML.add_multiline_char(from, to, characters_open, characters_close)
+function ML._add_multiline_char(from, to, characters_open, characters_close)
 
     A.nvim_buf_set_text(0,
                         to[1] - 1,

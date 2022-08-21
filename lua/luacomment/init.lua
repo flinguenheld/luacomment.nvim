@@ -7,8 +7,6 @@ local map = A.nvim_set_keymap
 
 -- TODO : characters list ? where read it ?
 -- TODO : file names ?
--- TODO : add with O or A
--- TODO : Block ??
 -- TODO : repeat ??
 
 
@@ -22,9 +20,9 @@ local map_opt = {}
 -- A.nvim_set_keymap('n', '<leader>ua', ':<C-U>echo"the cOunt is" .. v:count1<cr>', map_opt)
 
 -- Standard (line)
-map('n', '<leader>ca', ':<C-u>lua L.from_current(vim.v.count1, "add")<cr>', map_opt)
-map('n', '<leader>cd', ':<C-u>lua L.from_current(vim.v.count1, "delete")<cr>', map_opt)
-map('n', '<leader>ci', ':<C-u>lua L.from_current(vim.v.count1, "invert")<cr>', map_opt)
+map('n', '<leader>ca', ':<C-u>lua G.from_current(vim.v.count1, L.apply_action, "add")<cr>', map_opt)
+map('n', '<leader>cd', ':<C-u>lua G.from_current(vim.v.count1, L.apply_action, "delete")<cr>', map_opt)
+map('n', '<leader>ci', ':<C-u>lua G.from_current(vim.v.count1, L.apply_action, "invert")<cr>', map_opt)
 
 map('n', '<leader>cA', '<cmd>set opfunc=v:lua.L.add_from_selection<CR>g@', map_opt)
 map('n', '<leader>cD', '<cmd>set opfunc=v:lua.L.delete_from_selection<CR>g@', map_opt)
@@ -35,8 +33,8 @@ map('v', '<leader>cd', '<cmd>set opfunc=v:lua.L.delete_from_selection<CR>g@', ma
 map('v', '<leader>ci', '<cmd>set opfunc=v:lua.L.invert_from_selection<CR>g@', map_opt)
 
 -- Multiline
-map('n', '<leader>Ca', ':<C-u>lua ML.from_current(vim.v.count1, "add")<cr>', map_opt)
-map('n', '<leader>Cd', ':<C-u>lua ML.from_current(vim.v.count1, "delete")<cr>', map_opt)
+map('n', '<leader>Ca', ':<C-u>lua G.from_current(vim.v.count1, ML.apply_action, "add")<cr>', map_opt)
+map('n', '<leader>Cd', ':<C-u>lua G.from_current(vim.v.count1, ML.apply_action, "delete")<cr>', map_opt)
 
 map('n', '<leader>CA', '<cmd>set opfunc=v:lua.ML.add_from_selection<CR>g@', map_opt)
 
@@ -51,6 +49,6 @@ map('n', '<leader>Co', ':lua W.under(true)<CR>', map_opt)
 
 -- Write (clean)
 map('n', '<leader>ce', ':lua W.right()<CR>', map_opt)
-map('n', '<leader>cc', ':<C-u>lua W.clean_from_current(vim.v.count1)<CR>', map_opt)
+map('n', '<leader>cc', ':<C-u>lua G.from_current(vim.v.count1, W.clean_right)<CR>', map_opt)
 map('v', '<leader>cC', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
 map('n', '<leader>cC', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
