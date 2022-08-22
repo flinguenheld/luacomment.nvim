@@ -4,7 +4,7 @@ local A = vim.api
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
-G.characters = {lua={"--", "-- [[", "]]"},
+G.characters = {lua={"--", "-- [[", "-- ]]"},
                 py={"#", '"""', '"""'},}
 
 G.infos = {file_extension="",
@@ -34,17 +34,27 @@ function G.get_infos()
 end
 
 --------------------------------------------------------------------------------------------------
--- 
+-- Laucher from the current line to nb lines
+--      nb : number of lines
+--      f : function lauched
+--      ... : optional arguments like action's name
 --------------------------------------------------------------------------------------------------
 G.from_current = function(nb, f, ...)
     local current_row = A.nvim_win_get_cursor(0)[1] - 1
     f(current_row, current_row + nb, ...)
 end
 
-
-
-
-
+--------------------------------------------------------------------------------------------------
+-- Get the position of the first letter
+-- 0 if empty text
+--------------------------------------------------------------------------------------------------
+function G.get_indent(text)
+    local _, e = text:find("^%s*")
+    if e == nil then
+        e = 0
+    end
+    return e
+end
 
 --------------------------------------------------------------------------------------------------
 -- Convert pattern to plain text

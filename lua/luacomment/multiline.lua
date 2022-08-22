@@ -18,7 +18,7 @@ function ML.add_from_selection(type)
 
     -- Simplify the action by lines
     elseif type == 'line' then
-        ML.apply_action(start[1] - 1, finish[1] - 1, 'add')
+        ML.apply_action(start[1] - 1, finish[1], 'add')
     end
 end
 
@@ -56,15 +56,13 @@ function ML._add(from, to, characters_open, characters_close)
     end
 
     A.nvim_buf_set_text(0, to, #line, to, #line, {space .. characters_close})
+    space = " "
 
     -- start
     line = A.nvim_buf_get_lines(0, from, from + 1, {})[1]
-    space = " "
-    if G.is_empty_or_space(line) then
-        space = ""
-    end
+    local indent = G.get_indent(line)
 
-    A.nvim_buf_set_text(0, from, 0, from, 0, {characters_open .. space})
+    A.nvim_buf_set_text(0, from, indent, from, indent, {characters_open .. space})
 end
 
 

@@ -35,6 +35,8 @@ function W._add_comment(multiline, above)
 
         local cursor = A.nvim_win_get_cursor(0)
 
+        A.nvim_exec(":call indent(2)", {})
+
         -- Far fetched but necessary to deal with indexes
         if above then
             A.nvim_buf_set_lines(0, cursor[1] - 1, cursor[1] - 1, 0, {txt})
@@ -71,8 +73,7 @@ function W.right()
 end
 
 --------------------------------------------------------------------------------------------------
--- Clean right comments (on fact, clean standard comments)
--- Here lines in between marks, there from current to nb lines
+-- Launch cleaning with a ligne selection
 --------------------------------------------------------------------------------------------------
 function W.clean_from_selection(type)
 
@@ -84,7 +85,10 @@ function W.clean_from_selection(type)
     end
 end
 
-
+--------------------------------------------------------------------------------------------------
+-- Clean right comments (text and comments characters) in the range given
+-- Also delete the line if the line is empty after cleaning
+--------------------------------------------------------------------------------------------------
 W.clean_right = function(from, to)
 
     G.get_infos()
@@ -104,7 +108,12 @@ W.clean_right = function(from, to)
                 reverse_line = string.sub(reverse_line, e + 1)
                 reverse_line = string.gsub(reverse_line, "^%s+", "")
 
-                A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {reverse_line:reverse()})
+                -- Remove line if empty
+                if G.is_empty_or_space(reverse_line) then
+                    A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {})
+                else
+                    A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {reverse_line:reverse()})
+                end
                 done = true
             end
         end

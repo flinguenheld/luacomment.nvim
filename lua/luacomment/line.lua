@@ -29,7 +29,6 @@ function L._go_from_selection(type, action)
     end
 end
 
-
 --------------------------------------------------------------------------------------------------
 -- Get lines and loop
 --      action : add, delete or invert
@@ -81,7 +80,7 @@ end
 --------------------------------------------------------------------------------------------------
 function L._delete(text, index_row, characters)
 
-    if #text > 0 then
+    if G.is_empty_or_space(text) == false then
 
         local column_start, column_stop = string.find(text, characters, 0, true)
 
@@ -104,20 +103,14 @@ end
 --------------------------------------------------------------------------------------------------
 function L._add(text, index_row, characters)
 
-    -- Avoid empty and only space lines
-    if #text > 0 and string.match(text, "%g") ~= nil then
+    if G.is_empty_or_space(text) == false then
 
-        -- Find the first character (! lua is base 1 and vim base 0)
-        local _, first = string.find(text, "^%s+%g")
-        if not first then
-            first = 1
-        end
-
+        local indent = G.get_indent(text)
         A.nvim_buf_set_text(0,
                             index_row,
-                            first-1,
+                            indent,
                             index_row,
-                            first-1,
+                            indent,
                             {characters .. " "})
     end
 end
