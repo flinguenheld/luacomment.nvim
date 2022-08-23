@@ -74,23 +74,31 @@ function W.right()
 end
 
 --------------------------------------------------------------------------------------------------
--- Launch cleaning with a ligne selection
+-- Delete the comment on right (if exists) and create a new one
 --------------------------------------------------------------------------------------------------
-function W.clean_from_selection(type)
+function W.replace_right()
+    G.from_current(1, W.delete_right)
+    W.right()
+end
+
+--------------------------------------------------------------------------------------------------
+-- Launch 'delete_right' with a ligne selection
+--------------------------------------------------------------------------------------------------
+function W.delete_right_from_selection(type)
 
     if type == 'line' or type == 'char' then
         local start = A.nvim_buf_get_mark(0, '[')
         local finish = A.nvim_buf_get_mark(0, ']')
 
-        W.clean_right(start[1] - 1, finish[1])
+        W.delete_right(start[1] - 1, finish[1])
     end
 end
 
 --------------------------------------------------------------------------------------------------
--- Clean right comments (text and comments characters) in the range given
+-- Delete right comments (text and comments characters) in the range given
 -- Also delete the line if the line is empty after cleaning
 --------------------------------------------------------------------------------------------------
-W.clean_right = function(from, to)
+W.delete_right = function(from, to)
 
     G.get_infos()
     if G.infos.exist == true then
@@ -99,7 +107,8 @@ W.clean_right = function(from, to)
         local lines = A.nvim_buf_get_lines(0, from, to, false)
         local done = false
 
-        for index, line in ipairs(lines) do
+        local index = 1
+        for _, line in pairs(lines) do
 
             -- local s, _ = string.find(line, G.infos.characters_line, 0, true)
             local reverse_line = string.reverse(line)
@@ -112,11 +121,15 @@ W.clean_right = function(from, to)
                 -- Remove line if empty
                 if G.is_empty_or_space(reverse_line) then
                     A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {})
+                    index = index - 1
                 else
                     A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {reverse_line:reverse()})
                 end
+
                 done = true
             end
+
+            index = index + 1
         end
 
         if done ~= true then

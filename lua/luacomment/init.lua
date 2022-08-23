@@ -5,10 +5,10 @@ local A = vim.api
 local map = A.nvim_set_keymap
 
 
--- TODO : Bug cleaner !!!!!
 -- TODO : factorise opfunc ?
 -- TODO : characters list ? where read it ?
 -- TODO : repeat ??
+-- TODO : delete / replace multiline ?
 
 
 
@@ -48,8 +48,11 @@ map('n', '<leader>CO', ':lua W.above(true)<CR>', map_opt)
 map('n', '<leader>co', ':lua W.under(false)<CR>', map_opt)
 map('n', '<leader>Co', ':lua W.under(true)<CR>', map_opt)
 
--- Write (clean)
+-- Write (delete / replace)
 map('n', '<leader>ce', ':lua W.right()<CR>', map_opt)
-map('n', '<leader>cc', ':<C-u>lua G.from_current(vim.v.count1, W.clean_right)<CR>', map_opt)
-map('v', '<leader>cc', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
-map('n', '<leader>cC', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
+
+map('n', '<leader>cer', ':lua W.replace_right()<CR>', map_opt)
+
+map('n', '<leader>ced', ':<C-u>lua G.from_current(vim.v.count1, W.clean_right)<CR>', map_opt)
+map('v', '<leader>ced', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
+map('n', '<leader>ceD', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
