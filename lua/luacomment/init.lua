@@ -5,9 +5,7 @@ local A = vim.api
 local map = A.nvim_set_keymap
 
 
--- TODO : indent ?? Get indent for multiline
--- TODO : indent for write !!
--- TODO : Bug cleaner
+-- TODO : Bug cleaner !!!!!
 -- TODO : factorise opfunc ?
 -- TODO : characters list ? where read it ?
 -- TODO : repeat ??

@@ -22,52 +22,53 @@ function W._add_comment(multiline, above)
     if G.infos.exist == true then
 
         local txt = ""
-        local position_col = 0
-        local command_insert = ':startinsert'
-
         if multiline then
             txt = G.infos.characters_open .. "  " .. G.infos.characters_close
-            position_col = #G.infos.characters_open + 1
         else
             txt = G.infos.characters_line .. " "
-            command_insert = command_insert .. '!'
         end
 
-        local cursor = A.nvim_win_get_cursor(0)
-
-        A.nvim_exec(":call indent(2)", {})
-
-        -- Far fetched but necessary to deal with indexes
+        -- Use exec to automatically indent (better solution ?)
+        -- And add a space to create the line (erased at the next step)
         if above then
-            A.nvim_buf_set_lines(0, cursor[1] - 1, cursor[1] - 1, 0, {txt})
-            A.nvim_win_set_cursor(0, {cursor[1], position_col})
+            A.nvim_exec('normal O ', {})
         else
-            A.nvim_buf_set_lines(0, cursor[1], cursor[1], 0, {txt})
-            A.nvim_win_set_cursor(0, {cursor[1] + 1, position_col})
+            A.nvim_exec('normal o ', {})
         end
 
-        A.nvim_exec(command_insert, {})
+        -- Add characters
+        local cursor = A.nvim_win_get_cursor(0)
+        local line = A.nvim_get_current_line()
+        A.nvim_buf_set_text(0, cursor[1] - 1, #line - 1, cursor[1] - 1, #line, {txt})
+
+        -- Replace the cursor
+        if multiline then
+            line = A.nvim_get_current_line()
+            A.nvim_win_set_cursor(0, {cursor[1], #line - #G.infos.characters_close - 1})
+            A.nvim_exec('startinsert', {})
+        else
+            A.nvim_exec('startinsert!', {})
+        end
     end
 end
 
 --------------------------------------------------------------------------------------------------
 -- Add a comment on the right
--- multiline : bool to use simple or multi comments
 --------------------------------------------------------------------------------------------------
 function W.right()
 
     G.get_infos()
     if G.infos.exist == true then
 
+        local cursor = A.nvim_win_get_cursor(0)
         local line = A.nvim_get_current_line()
 
-        if G.is_empty_or_space(line) then
-            line = G.infos.characters_line .. " "
-        else
-            line = line .. " " .. G.infos.characters_line .. " "
+        local txt = G.infos.characters_line .. " "
+        if G.is_empty_or_space(line) == false and line:sub(#line) ~= " " then
+            txt = " " .. txt
         end
 
-        A.nvim_set_current_line(line)
+        A.nvim_buf_set_text(0, cursor[1] - 1, #line, cursor[1] - 1, #line, {txt})
         A.nvim_exec(":startinsert!", {})
     end
 end
