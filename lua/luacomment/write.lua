@@ -73,11 +73,53 @@ function W.right()
     end
 end
 
+
+--------------------------------------------------------------------------------------------------
+-- Replace a multiline comment
+--------------------------------------------------------------------------------------------------
+function W.replace_multiline()
+
+    G.get_infos()
+    if G.infos.exist == true then
+
+        -- Is there a comment ?
+        local cursor = A.nvim_win_get_cursor(0)
+        local lines = A.nvim_buf_get_lines(0, 0, -1, {})
+
+
+        -- Delimiters ?
+        for i = cursor[1], 1, -1 do
+            local _, open_end = string.find(lines[i], G.infos.characters_open, 0, true)
+
+            if open_end ~= nil then
+
+                for j = cursor[1], #lines, 1 do
+
+                    local close_start, _ = string.find(lines[j], G.infos.characters_close, 0, true)
+
+                    if close_start ~= nil then
+
+                        A.nvim_buf_set_text(0, i - 1, open_end, j - 1, close_start - 1, {"  "})
+
+                        A.nvim_win_set_cursor(0, {i, open_end + 1})
+
+                        A.nvim_exec('startinsert', {})
+
+                        break
+                    end
+                end
+
+                break
+            end
+        end
+    end
+end
+
 --------------------------------------------------------------------------------------------------
 -- Delete the comment on right (if exists) and create a new one
 --------------------------------------------------------------------------------------------------
 function W.replace_right()
-    G.from_current(1, W.delete_right)
+    G.from_current(1, W.delete_right, false) -- Don't delete the line
     W.right()
 end
 
@@ -90,7 +132,7 @@ function W.delete_right_from_selection(type)
         local start = A.nvim_buf_get_mark(0, '[')
         local finish = A.nvim_buf_get_mark(0, ']')
 
-        W.delete_right(start[1] - 1, finish[1])
+        W.delete_right(start[1] - 1, finish[1], true)
     end
 end
 
@@ -98,7 +140,7 @@ end
 -- Delete right comments (text and comments characters) in the range given
 -- Also delete the line if the line is empty after cleaning
 --------------------------------------------------------------------------------------------------
-W.delete_right = function(from, to)
+W.delete_right = function(from, to, delete_empty_line)
 
     G.get_infos()
     if G.infos.exist == true then
@@ -119,7 +161,7 @@ W.delete_right = function(from, to)
                 reverse_line = string.gsub(reverse_line, "^%s+", "")
 
                 -- Remove line if empty
-                if G.is_empty_or_space(reverse_line) then
+                if delete_empty_line and G.is_empty_or_space(reverse_line) then
                     A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {})
                     index = index - 1
                 else

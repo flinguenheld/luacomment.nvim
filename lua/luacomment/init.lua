@@ -5,6 +5,7 @@ local A = vim.api
 local map = A.nvim_set_keymap
 
 
+-- TODO : tidy up write !
 -- TODO : factorise opfunc ?
 -- TODO : characters list ? where read it ?
 -- TODO : repeat ??
@@ -49,10 +50,11 @@ map('n', '<leader>co', ':lua W.under(false)<CR>', map_opt)
 map('n', '<leader>Co', ':lua W.under(true)<CR>', map_opt)
 
 -- Write (delete / replace)
-map('n', '<leader>ce', ':lua W.right()<CR>', map_opt)
+map('n', '<leader>cea', ':lua W.right()<CR>', map_opt)
 
 map('n', '<leader>cer', ':lua W.replace_right()<CR>', map_opt)
+map('n', '<leader>Cer', ':lua W.replace_multiline()<CR>', map_opt)
 
-map('n', '<leader>ced', ':<C-u>lua G.from_current(vim.v.count1, W.clean_right)<CR>', map_opt)
+map('n', '<leader>ced', ':<C-u>lua G.from_current(vim.v.count1, W.delete_right, true)<CR>', map_opt)
 map('v', '<leader>ced', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
 map('n', '<leader>ceD', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
