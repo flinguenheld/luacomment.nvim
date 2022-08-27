@@ -1,17 +1,12 @@
 local L = require('luacomment.line')
 local ML = require('luacomment.multiline')
-local W = require('luacomment.write')
+local EX = require('luacomment.extra')
+
 local A = vim.api
 local map = A.nvim_set_keymap
 
 
--- TODO : tidy up write !
--- TODO : factorise opfunc ?
--- TODO : characters list ? where read it ?
 -- TODO : repeat ??
--- TODO : delete / replace multiline ?
-
-
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
@@ -42,19 +37,18 @@ map('n', '<leader>CA', '<cmd>set opfunc=v:lua.ML.add_from_selection<CR>g@', map_
 
 map('v', '<leader>Ca', '<cmd>set opfunc=v:lua.ML.add_from_selection<CR>g@', map_opt)
 
--- Write
-map('n', '<leader>cO', ':lua W.above(false)<CR>', map_opt)
-map('n', '<leader>CO', ':lua W.above(true)<CR>', map_opt)
+-- Extra
+map('n', '<leader>cO', ':lua EX.above(false)<CR>', map_opt)
+map('n', '<leader>CO', ':lua EX.above(true)<CR>', map_opt)
 
-map('n', '<leader>co', ':lua W.under(false)<CR>', map_opt)
-map('n', '<leader>Co', ':lua W.under(true)<CR>', map_opt)
+map('n', '<leader>co', ':lua EX.under(false)<CR>', map_opt)
+map('n', '<leader>Co', ':lua EX.under(true)<CR>', map_opt)
 
--- Write (delete / replace)
-map('n', '<leader>cea', ':lua W.right()<CR>', map_opt)
+map('n', '<leader>cea', ':lua EX.right()<CR>', map_opt)
 
-map('n', '<leader>cer', ':lua W.replace_right()<CR>', map_opt)
-map('n', '<leader>Cer', ':lua W.replace_multiline()<CR>', map_opt)
+map('n', '<leader>cer', ':lua EX.replace_right()<CR>', map_opt)
+map('n', '<leader>Cer', ':lua EX.replace_multiline()<CR>', map_opt)
 
-map('n', '<leader>ced', ':<C-u>lua G.from_current(vim.v.count1, W.delete_right, true)<CR>', map_opt)
-map('v', '<leader>ced', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
-map('n', '<leader>ceD', '<cmd>set opfunc=v:lua.W.clean_from_selection<CR>g@', map_opt)
+map('n', '<leader>ced', ':<C-u>lua G.from_current(vim.v.count1, EX.delete_right, true)<CR>', map_opt)
+map('v', '<leader>ced', '<cmd>set opfunc=v:lua.EX.clean_from_selection<CR>g@', map_opt)
+map('n', '<leader>ceD', '<cmd>set opfunc=v:lua.EX.clean_from_selection<CR>g@', map_opt)

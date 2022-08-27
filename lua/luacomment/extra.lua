@@ -1,22 +1,29 @@
+--------------------------------------------------------------------------------------------------
+-- Extra functions like : add a line and begin a comment or replace a comment's text
+--------------------------------------------------------------------------------------------------
+
 local G = require('luacomment.general')
 local A = vim.api
 
-W = {}
+EX = {}
+
+--------------------------------------------------------------------------------------------------------------
+-- COMMENT CREATION ------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------
--- Add a new line with comments characters
--- multiline : bool to use simple or multi comments
+-- Add a new line with comments characters and switch to insert mod
+--      multiline : bool to use simple or multiline comments
 --------------------------------------------------------------------------------------------------
-function W.above(multiline)
-    W._add_comment(multiline, true)
+function EX.above(multiline)
+    EX._add_comment(multiline, true)
 end
 
-function W.under(multiline)
+function EX.under(multiline)
     
-    W._add_comment(multiline, false)
+    EX._add_comment(multiline, false)
 end
 
-function W._add_comment(multiline, above)
+function EX._add_comment(multiline, above)
 
     G.get_infos()
     if G.infos.exist == true then
@@ -55,7 +62,7 @@ end
 --------------------------------------------------------------------------------------------------
 -- Add a comment on the right
 --------------------------------------------------------------------------------------------------
-function W.right()
+function EX.right()
 
     G.get_infos()
     if G.infos.exist == true then
@@ -74,10 +81,13 @@ function W.right()
 end
 
 
+--------------------------------------------------------------------------------------------------------------
+-- COMMENT'S TEXT REPLACEMENT --------------------------------------------------------------------------------
+
 --------------------------------------------------------------------------------------------------
 -- Replace a multiline comment
 --------------------------------------------------------------------------------------------------
-function W.replace_multiline()
+function EX.replace_multiline()
 
     G.get_infos()
     if G.infos.exist == true then
@@ -118,21 +128,25 @@ end
 --------------------------------------------------------------------------------------------------
 -- Delete the comment on right (if exists) and create a new one
 --------------------------------------------------------------------------------------------------
-function W.replace_right()
-    G.from_current(1, W.delete_right, false) -- Don't delete the line
-    W.right()
+function EX.replace_right()
+    G.from_current(1, EX.delete_right, false) -- Don't delete the line
+    EX.right()
 end
+
+
+--------------------------------------------------------------------------------------------------------------
+-- DELETE COMMENT ENTIRELY -----------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------
 -- Launch 'delete_right' with a ligne selection
 --------------------------------------------------------------------------------------------------
-function W.delete_right_from_selection(type)
+function EX.delete_right_from_selection(type)
 
     if type == 'line' or type == 'char' then
         local start = A.nvim_buf_get_mark(0, '[')
         local finish = A.nvim_buf_get_mark(0, ']')
 
-        W.delete_right(start[1] - 1, finish[1], true)
+        EX.delete_right(start[1] - 1, finish[1], true)
     end
 end
 
@@ -140,7 +154,7 @@ end
 -- Delete right comments (text and comments characters) in the range given
 -- Also delete the line if the line is empty after cleaning
 --------------------------------------------------------------------------------------------------
-W.delete_right = function(from, to, delete_empty_line)
+EX.delete_right = function(from, to, delete_empty_line)
 
     G.get_infos()
     if G.infos.exist == true then
@@ -182,4 +196,4 @@ W.delete_right = function(from, to, delete_empty_line)
 end
 
 --------------------------------------------------------------------------------------------------
-return W
+return EX
