@@ -1,12 +1,15 @@
 local L = require('luacomment.line')
 local ML = require('luacomment.multiline')
 local EX = require('luacomment.extra')
+local T = require('luacomment.test')
 
 local A = vim.api
 local map = A.nvim_set_keymap
 
 
 -- TODO : repeat ??
+-- TODO : embedded languages ?
+
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------
@@ -52,3 +55,6 @@ map('n', '<leader>Cer', ':lua EX.replace_multiline()<CR>', map_opt)
 map('n', '<leader>ced', ':<C-u>lua G.from_current(vim.v.count1, EX.delete_right, true)<CR>', map_opt)
 map('v', '<leader>ced', '<cmd>set opfunc=v:lua.EX.clean_from_selection<CR>g@', map_opt)
 map('n', '<leader>ceD', '<cmd>set opfunc=v:lua.EX.clean_from_selection<CR>g@', map_opt)
+
+-- Test
+map('n', '<leader>ct', ':lua T.test()<CR>', map_opt)
