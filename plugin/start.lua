@@ -1,3 +1,3 @@
-print("Hullo Flo from luacomment")
+-- print("Hullo Flo from luacomment")
 
 require('luacomment')
