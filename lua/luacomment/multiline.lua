@@ -9,15 +9,19 @@ ML = {}
 --------------------------------------------------------------------------------------------------
 function ML.add_from_selection(type)
 
-    local start = A.nvim_buf_get_mark(0, '[')
-    local finish = A.nvim_buf_get_mark(0, ']')
+    if G.infos.characters_open ~= "" then
+        local start = A.nvim_buf_get_mark(0, '[')
+        local finish = A.nvim_buf_get_mark(0, ']')
 
-    if type == 'char' then
-        ML.apply_action(start, finish, 'add_char')
+        if type == 'char' then
+            ML.apply_action(start, finish, 'add_char')
 
-    -- Simplify the action by lines
-    elseif type == 'line' then
-        ML.apply_action(start[1] - 1, finish[1], 'add')
+        -- Simplify the action by lines
+        elseif type == 'line' then
+            ML.apply_action(start[1] - 1, finish[1], 'add')
+        end
+    else
+        print("Multiline comments unavailable")
     end
 end
 
@@ -30,12 +34,16 @@ ML.apply_action = function(from, to, action)
     G.get_infos()
     if G.infos.exist == true then
 
-        if action == 'add' then
-            ML._add(from, to - 1, G.infos.characters_open, G.infos.characters_close)
-        elseif action == 'add_char' then
-            ML._add_multiline_char(from, to, G.infos.characters_open, G.infos.characters_close)
-        elseif action == 'delete' then
-            ML._delete(from, G.infos.characters_open, G.infos.characters_close)
+        if G.infos.characters_open ~= "" then
+            if action == 'add' then
+                ML._add(from, to - 1, G.infos.characters_open, G.infos.characters_close)
+            elseif action == 'add_char' then
+                ML._add_multiline_char(from, to, G.infos.characters_open, G.infos.characters_close)
+            elseif action == 'delete' then
+                ML._delete(from, G.infos.characters_open, G.infos.characters_close)
+            end
+        else
+            print("Multiline comments unavailable")
         end
     end
 end
