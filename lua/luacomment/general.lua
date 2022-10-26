@@ -11,7 +11,12 @@ G.characters = {lua={"--", "--[[", "]]"},
                 cpp={"//", "/*", "*/"},
                 mk={"#", "", ""},
                 sh={"#", "'", "'"},
+
+                html={"", "<!--", "-->"},
 }
+
+
+
 
 G.infos = {file_extension="",
            exist=false,

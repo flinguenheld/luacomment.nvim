@@ -1,4 +1,5 @@
 local G = require('luacomment.general')
+local ML = require('luacomment.multiline')
 local A = vim.api
 
 L = {}
@@ -43,11 +44,11 @@ L.apply_action = function (from, to, action)
 
             for index, text in ipairs(lines) do
                 if action == 'add' then
-                    L._add(text, from + index - 1, G.infos.characters_line)
+                    L._add(text, from + index - 1, G.infos)
                 elseif action == 'delete' then
-                    L._delete(text, from + index - 1, G.infos.characters_line)
+                    L._delete(text, from + index - 1, G.infos)
                 elseif action == 'invert' then
-                    L._invert(text, from + index - 1, G.infos.characters_line)
+                    L._invert(text, from + index - 1, G.infos)
                 end
             end
     end
@@ -56,42 +57,57 @@ end
 --------------------------------------------------------------------------------------------------
 -- Invert the comment
 --------------------------------------------------------------------------------------------------
-function L._invert(text, index_row, characters)
+function L._invert(text, index_row, infos)
 
-    if L._is_commented(text, characters) then
-        L._delete(text, index_row, characters)
+    if L._is_commented(text, infos) then
+        L._delete(text, index_row, infos)
     else
-        L._add(text, index_row, characters)
+        L._add(text, index_row, infos)
     end
 end
 
 -- Check if the given text begins with characters
-function L._is_commented(text, characters)
+function L._is_commented(text, infos)
 
-    if string.find(text, "^%s*" .. G.pattern_to_plain(characters) .. "") ~= nil then
-        return true
+    -- Multiline only for this extension ?
+    if infos.characters_line == "" then
+        if string.find(text, "^%s*" .. G.pattern_to_plain(infos.characters_open) .. "") ~= nil then
+            if string.find(text, "%s*$" .. G.pattern_to_plain(infos.characters_close) .. "") ~= nil then
+                return true
+            end
+        end
     else
-        return false
+        if string.find(text, "^%s*" .. G.pattern_to_plain(infos.characters_line) .. "") ~= nil then
+            return true
+        end
     end
+
+    return false
 end
 
 --------------------------------------------------------------------------------------------------
 -- Delete the first comment characters on the line
 --------------------------------------------------------------------------------------------------
-function L._delete(text, index_row, characters)
+function L._delete(text, index_row, infos)
 
     if G.is_empty_or_space(text) == false then
 
-        local column_start, column_stop = string.find(text, characters, 0, true)
+        -- Multiline only for this extension ?
+        if infos.characters_line == "" then
+            ML.delete_multiline_char_for_the_line(index_row, infos.characters_open, infos.characters_close)
 
-        if column_start then
-            if text:sub(column_stop+1, column_stop+1) == " " then
-                column_stop = column_stop + 1
+        else
+            local column_start, column_stop = string.find(text, infos.characters_line, 0, true)
+
+            if column_start then
+                if text:sub(column_stop+1, column_stop+1) == " " then
+                    column_stop = column_stop + 1
+                end
+
+                A.nvim_buf_set_text(0, index_row, column_start-1, index_row, column_stop, {})
+
+                return true
             end
-
-            A.nvim_buf_set_text(0, index_row, column_start-1, index_row, column_stop, {})
-
-            return true
         end
     end
 end
@@ -101,17 +117,23 @@ end
 -- Avoid empty lines
 -- No check, just add
 --------------------------------------------------------------------------------------------------
-function L._add(text, index_row, characters)
+function L._add(text, index_row, infos)
 
     if G.is_empty_or_space(text) == false then
 
-        local indent = G.get_indent(text)
-        A.nvim_buf_set_text(0,
-                            index_row,
-                            indent,
-                            index_row,
-                            indent,
-                            {characters .. " "})
+        -- Multiline only for this extension ?
+        if infos.characters_line == "" then
+            ML.add_multiline_char_for_the_line(index_row, infos.characters_open, infos.characters_close)
+
+        else
+            local indent = G.get_indent(text)
+            A.nvim_buf_set_text(0,
+                                index_row,
+                                indent,
+                                index_row,
+                                indent,
+                                {infos.characters_line .. " "})
+        end
     end
 end
 
