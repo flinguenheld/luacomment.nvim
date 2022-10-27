@@ -37,21 +37,19 @@ end
 L.apply_action = function (from, to, action)
 
     G.get_infos()
-    if G.infos.exist == true then
 
-        -- Get all lines
-        local lines = A.nvim_buf_get_lines(0, from, to, false)
+    -- Get all lines
+    local lines = A.nvim_buf_get_lines(0, from, to, false)
 
-            for index, text in ipairs(lines) do
-                if action == 'add' then
-                    L._add(text, from + index - 1, G.infos)
-                elseif action == 'delete' then
-                    L._delete(text, from + index - 1, G.infos)
-                elseif action == 'invert' then
-                    L._invert(text, from + index - 1, G.infos)
-                end
+        for index, text in ipairs(lines) do
+            if action == 'add' then
+                L._add(text, from + index - 1, G.infos)
+            elseif action == 'delete' then
+                L._delete(text, from + index - 1, G.infos)
+            elseif action == 'invert' then
+                L._invert(text, from + index - 1, G.infos)
             end
-    end
+        end
 end
 
 --------------------------------------------------------------------------------------------------

@@ -19,43 +19,40 @@ function EX.above(multiline)
 end
 
 function EX.under(multiline)
-    
     EX._add_comment(multiline, false)
 end
 
 function EX._add_comment(multiline, above)
 
     G.get_infos()
-    if G.infos.exist == true then
 
-        local txt = ""
-        if multiline then
-            txt = G.infos.characters_open .. "  " .. G.infos.characters_close
-        else
-            txt = G.infos.characters_line .. " "
-        end
+    local txt = ""
+    if multiline then
+        txt = G.infos.characters_open .. "  " .. G.infos.characters_close
+    else
+        txt = G.infos.characters_line .. " "
+    end
 
-        -- Use exec to automatically indent (better solution ?)
-        -- And add a space to create the line (erased at the next step)
-        if above then
-            A.nvim_exec('normal O ', {})
-        else
-            A.nvim_exec('normal o ', {})
-        end
+    -- Use exec to automatically indent (better solution ?)
+    -- And add a space to create the line (erased at the next step)
+    if above then
+        A.nvim_exec('normal O ', {})
+    else
+        A.nvim_exec('normal o ', {})
+    end
 
-        -- Add characters
-        local cursor = A.nvim_win_get_cursor(0)
-        local line = A.nvim_get_current_line()
-        A.nvim_buf_set_text(0, cursor[1] - 1, #line - 1, cursor[1] - 1, #line, {txt})
+    -- Add characters
+    local cursor = A.nvim_win_get_cursor(0)
+    local line = A.nvim_get_current_line()
+    A.nvim_buf_set_text(0, cursor[1] - 1, #line - 1, cursor[1] - 1, #line, {txt})
 
-        -- Replace the cursor
-        if multiline then
-            line = A.nvim_get_current_line()
-            A.nvim_win_set_cursor(0, {cursor[1], #line - #G.infos.characters_close - 1})
-            A.nvim_exec('startinsert', {})
-        else
-            A.nvim_exec('startinsert!', {})
-        end
+    -- Replace the cursor
+    if multiline then
+        line = A.nvim_get_current_line()
+        A.nvim_win_set_cursor(0, {cursor[1], #line - #G.infos.characters_close - 1})
+        A.nvim_exec('startinsert', {})
+    else
+        A.nvim_exec('startinsert!', {})
     end
 end
 
@@ -65,19 +62,17 @@ end
 function EX.right()
 
     G.get_infos()
-    if G.infos.exist == true then
 
-        local cursor = A.nvim_win_get_cursor(0)
-        local line = A.nvim_get_current_line()
+    local cursor = A.nvim_win_get_cursor(0)
+    local line = A.nvim_get_current_line()
 
-        local txt = G.infos.characters_line .. " "
-        if G.is_empty_or_space(line) == false and line:sub(#line) ~= " " then
-            txt = " " .. txt
-        end
-
-        A.nvim_buf_set_text(0, cursor[1] - 1, #line, cursor[1] - 1, #line, {txt})
-        A.nvim_exec(":startinsert!", {})
+    local txt = G.infos.characters_line .. " "
+    if G.is_empty_or_space(line) == false and line:sub(#line) ~= " " then
+        txt = " " .. txt
     end
+
+    A.nvim_buf_set_text(0, cursor[1] - 1, #line, cursor[1] - 1, #line, {txt})
+    A.nvim_exec(":startinsert!", {})
 end
 
 
@@ -90,37 +85,35 @@ end
 function EX.replace_multiline()
 
     G.get_infos()
-    if G.infos.exist == true then
 
-        -- Is there a comment ?
-        local cursor = A.nvim_win_get_cursor(0)
-        local lines = A.nvim_buf_get_lines(0, 0, -1, {})
+    -- Is there a comment ?
+    local cursor = A.nvim_win_get_cursor(0)
+    local lines = A.nvim_buf_get_lines(0, 0, -1, {})
 
 
-        -- Delimiters ?
-        for i = cursor[1], 1, -1 do
-            local _, open_end = string.find(lines[i], G.infos.characters_open, 0, true)
+    -- Delimiters ?
+    for i = cursor[1], 1, -1 do
+        local _, open_end = string.find(lines[i], G.infos.characters_open, 0, true)
 
-            if open_end ~= nil then
+        if open_end ~= nil then
 
-                for j = cursor[1], #lines, 1 do
+            for j = cursor[1], #lines, 1 do
 
-                    local close_start, _ = string.find(lines[j], G.infos.characters_close, 0, true)
+                local close_start, _ = string.find(lines[j], G.infos.characters_close, 0, true)
 
-                    if close_start ~= nil then
+                if close_start ~= nil then
 
-                        A.nvim_buf_set_text(0, i - 1, open_end, j - 1, close_start - 1, {"  "})
+                    A.nvim_buf_set_text(0, i - 1, open_end, j - 1, close_start - 1, {"  "})
 
-                        A.nvim_win_set_cursor(0, {i, open_end + 1})
+                    A.nvim_win_set_cursor(0, {i, open_end + 1})
 
-                        A.nvim_exec('startinsert', {})
+                    A.nvim_exec('startinsert', {})
 
-                        break
-                    end
+                    break
                 end
-
-                break
             end
+
+            break
         end
     end
 end
@@ -157,40 +150,38 @@ end
 EX.delete_right = function(from, to, delete_empty_line)
 
     G.get_infos()
-    if G.infos.exist == true then
 
-        -- Get all lines
-        local lines = A.nvim_buf_get_lines(0, from, to, false)
-        local done = false
+    -- Get all lines
+    local lines = A.nvim_buf_get_lines(0, from, to, false)
+    local done = false
 
-        local index = 1
-        for _, line in pairs(lines) do
+    local index = 1
+    for _, line in pairs(lines) do
 
-            -- local s, _ = string.find(line, G.infos.characters_line, 0, true)
-            local reverse_line = string.reverse(line)
-            local s, e = string.find(reverse_line, G.infos.characters_line, 0, true)
+        -- local s, _ = string.find(line, G.infos.characters_line, 0, true)
+        local reverse_line = string.reverse(line)
+        local s, e = string.find(reverse_line, G.infos.characters_line, 0, true)
 
-            if s ~= nil then
-                reverse_line = string.sub(reverse_line, e + 1)
-                reverse_line = string.gsub(reverse_line, "^%s+", "")
+        if s ~= nil then
+            reverse_line = string.sub(reverse_line, e + 1)
+            reverse_line = string.gsub(reverse_line, "^%s+", "")
 
-                -- Remove line if empty
-                if delete_empty_line and G.is_empty_or_space(reverse_line) then
-                    A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {})
-                    index = index - 1
-                else
-                    A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {reverse_line:reverse()})
-                end
-
-                done = true
+            -- Remove line if empty
+            if delete_empty_line and G.is_empty_or_space(reverse_line) then
+                A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {})
+                index = index - 1
+            else
+                A.nvim_buf_set_lines(0, from + index - 1, from + index, false, {reverse_line:reverse()})
             end
 
-            index = index + 1
+            done = true
         end
 
-        if done ~= true then
-            print("Nothing to clean")
-        end
+        index = index + 1
+    end
+
+    if done ~= true then
+        print("Nothing to clean")
     end
 
 end

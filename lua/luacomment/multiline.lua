@@ -32,19 +32,17 @@ end
 ML.apply_action = function(from, to, action)
 
     G.get_infos()
-    if G.infos.exist == true then
 
-        if G.infos.characters_open ~= "" then
-            if action == 'add' then
-                ML._add(from, to - 1, G.infos.characters_open, G.infos.characters_close)
-            elseif action == 'add_char' then
-                ML._add_multiline_char(from, to, G.infos.characters_open, G.infos.characters_close)
-            elseif action == 'delete' then
-                ML._delete(from, G.infos.characters_open, G.infos.characters_close)
-            end
-        else
-            print("Multiline comments unavailable")
+    if G.infos.characters_open ~= "" then
+        if action == 'add' then
+            ML._add(from, to - 1, G.infos.characters_open, G.infos.characters_close)
+        elseif action == 'add_char' then
+            ML._add_multiline_char(from, to, G.infos.characters_open, G.infos.characters_close)
+        elseif action == 'delete' then
+            ML._delete(from, G.infos.characters_open, G.infos.characters_close)
         end
+    else
+        print("Multiline comments unavailable")
     end
 end
 

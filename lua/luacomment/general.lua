@@ -15,6 +15,8 @@ G.characters = {lua={"--", "--[[", "]]"},
 
                 html={"", "<!--", "-->"},
                 css={"", "/*", "*/"},
+
+                default={"#", "", ""}
 }
 
 
@@ -34,16 +36,13 @@ function G.get_infos()
 
     G.infos.file_extension = string.match(A.nvim_buf_get_name(0), "^.+%.(.+)$")
 
-    if G.characters[G.infos.file_extension] then
+    if G.characters[G.infos.file_extension] == nil then
+        G.infos.file_extension = "default"
+    end
 
         G.infos.characters_line = G.characters[G.infos.file_extension][1]
         G.infos.characters_open = G.characters[G.infos.file_extension][2]
         G.infos.characters_close = G.characters[G.infos.file_extension][3]
-
-        G.infos.exist = true
-    else
-        print(G.infos.file_extension .. " doesn't exist :(")
-    end
 end
 
 --------------------------------------------------------------------------------------------------
