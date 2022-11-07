@@ -68,7 +68,7 @@ function EX.right()
 
     local txt = G.infos.characters_line .. " "
     if G.is_empty_or_space(line) == false and line:sub(#line) ~= " " then
-        txt = " " .. txt
+        txt = "  " .. txt  -- Two spaces for the pep
     end
 
     A.nvim_buf_set_text(0, cursor[1] - 1, #line, cursor[1] - 1, #line, {txt})
